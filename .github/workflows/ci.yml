@@ -64,9 +64,10 @@ jobs:
           -noaudio
           -no-boot-anim
           -no-snapshot-load
-          -memory 3072 # Increased memory
-          -camera-back none # Disable virtual cameras
-          -camera-front none # Disable virtual cameras
+          -memory 3072
+          -camera-back none
+          -camera-front none
+          -feature -Vulkan
         # Increased timeout to handle slow macOS 15 Intel virtualization
         emulator-boot-timeout: 900
         script: ./gradlew connectedCheck
