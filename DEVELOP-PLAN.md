@@ -42,7 +42,7 @@ The following step‑by‑step plan lays out the work required to build a fully 
 * **Instrumentation tests** for UI flows (menu navigation, pause, resume). (BLOCKED: Persistent compilation error 'Unresolved reference: assertExists')
 * Verify smooth frame rate (60 fps target) in Android Studio Profiler.
 
-## 8. Build & Release
+## 8. Build & Release (DONE)
 * Configure release build signing with keystore.
 * Generate APK/AAB for distribution.
 * Write release notes and build manifest for Play Store (if publishing).
