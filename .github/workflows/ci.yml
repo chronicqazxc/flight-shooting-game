@@ -66,9 +66,10 @@ jobs:
           -camera-back none
           -camera-front none
           -feature -Vulkan
-          -feature -SkiaTracing
         emulator-boot-timeout: 1200
         script: ./gradlew connectedCheck
+      env: # CRITICAL FIX: Forces the emulator to use bundled libraries
+        ANDROID_EMULATOR_USE_SYSTEM_LIBS: 1
 
     - name: Build Debug APK
       run: ./gradlew assembleDebug
