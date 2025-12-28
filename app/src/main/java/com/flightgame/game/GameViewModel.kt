@@ -7,35 +7,43 @@ import androidx.lifecycle.viewModelScope
 import com.flightgame.model.GameState
 import com.flightgame.model.GameStateHolder
 import com.flightgame.model.Projectile
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
  * ViewModel that orchestrates the game loop and exposes a Flow of GameState.
  */
-class GameViewModel : ViewModel() {
+class GameViewModel(
+    private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Default
+) : ViewModel() {
     private var stateHolder = GameStateHolder()
     private val repository = GameRepository(stateHolder)
     val stateFlow = repository.state
 
     private var soundManager: SoundManager? = null
 
-    private var runner = GameRunner(stateHolder, this)
-    private var enemySpawner = EnemySpawner(stateHolder)
-    private var powerUpSpawner = PowerUpSpawner(stateHolder)
+    private var runner: GameRunner? = null
+    private var enemySpawner: EnemySpawner? = null
+    private var powerUpSpawner: PowerUpSpawner? = null
     private val inputHandler = InputHandler(stateHolder)
 
     init {
-        startGameLoops()
+        // Game loops will be explicitly started by tests or MainActivity
     }
 
     fun initSoundManager(context: Context) {
         soundManager = SoundManager(context)
     }
 
-    private fun startGameLoops() {
-        viewModelScope.launch { runner.start() }
-        viewModelScope.launch { enemySpawner.start() }
-        viewModelScope.launch { powerUpSpawner.start() }
+    fun startGameLoops() {
+        runner = GameRunner(stateHolder, this)
+        enemySpawner = EnemySpawner(stateHolder)
+        powerUpSpawner = PowerUpSpawner(stateHolder)
+
+        viewModelScope.launch(coroutineDispatcher) { runner?.start() }
+        viewModelScope.launch(coroutineDispatcher) { enemySpawner?.start() }
+        viewModelScope.launch(coroutineDispatcher) { powerUpSpawner?.start() }
     }
 
     fun onDrag(dragAmount: Offset) {
@@ -63,9 +71,7 @@ class GameViewModel : ViewModel() {
 
     fun restart() {
         stateHolder.update { GameState() } // Reset to default state
-        runner = GameRunner(stateHolder, this)
-        enemySpawner = EnemySpawner(stateHolder)
-        powerUpSpawner = PowerUpSpawner(stateHolder)
+        // Re-initialize and start game loops
         startGameLoops()
     }
 
