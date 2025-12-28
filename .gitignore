@@ -31,3 +31,4 @@ crashlytics-build.properties
 .project
 # By Gemini
 .geminiignore
+.secret/
