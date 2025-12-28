@@ -43,7 +43,7 @@ jobs:
 
     # Optional: Pre-start ADB to prevent daemon connection issues
     - name: Start ADB Server
-      run: adb start-server
+      run: adb kill-server && adb start-server # Updated for more aggressive ADB reset
 
     - name: Run Instrumented Tests
       uses: ReactiveCircus/android-emulator-runner@v2
@@ -54,7 +54,21 @@ jobs:
         profile: pixel_6
         disable-animations: true
         disable-spellchecker: true
-        emulator-options: -no-window -gpu host -noaudio -no-boot-anim -no-snapshot-load
+        # UPDATED for macos-15-intel stability in 2025:
+        # 1. Use swiftshader_indirect to bypass macOS 15 host GPU driver hangs.
+        # 2. Add -no-snapshot-load to ensure a clean boot.
+        # 3. Add -no-window and -noaudio as standard CI flags.
+        emulator-options: >-
+          -no-window
+          -gpu swiftshader_indirect
+          -noaudio
+          -no-boot-anim
+          -no-snapshot-load
+          -memory 3072 # Increased memory
+          -camera-back none # Disable virtual cameras
+          -camera-front none # Disable virtual cameras
+        # Increased timeout to handle slow macOS 15 Intel virtualization
+        emulator-boot-timeout: 900
         script: ./gradlew connectedCheck
 
     - name: Build Debug APK
