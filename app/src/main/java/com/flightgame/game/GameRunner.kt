@@ -103,4 +103,4 @@ class GameRunner(
 
 private operator fun Offset.plus(o: Offset) = Offset(x + o.x, y + o.y)
 private operator fun Offset.times(scalar: Float) = Offset(x * scalar, y * scalar)
-private fun Offset.copy(x: Float = this.x, y: Float = this.y) = Offset(x, y)
+
