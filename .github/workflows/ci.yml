@@ -60,7 +60,7 @@ jobs:
         # 3. Add -no-window and -noaudio as standard CI flags.
         emulator-options: >-
           -no-window
-          -gpu swiftshader_indirect
+          -gpu off
           -noaudio
           -no-boot-anim
           -no-snapshot-load
@@ -68,8 +68,8 @@ jobs:
           -camera-back none
           -camera-front none
           -feature -Vulkan
-        # Increased timeout to handle slow macOS 15 Intel virtualization
-        emulator-boot-timeout: 900
+          -qemu -cpu host
+        emulator-boot-timeout: 1200 # Increased timeout
         script: ./gradlew connectedCheck
 
     - name: Build Debug APK
