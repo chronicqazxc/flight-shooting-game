@@ -7,4 +7,4 @@
 
 ## Blocked Issues
 
-* **Instrumentation tests** – UI navigation tests for menus and pause flow. (BLOCKED: Persistent compilation error 'Unresolved reference: assertExists')
+* **Instrumentation tests** – UI navigation tests for menus and pause flow. (PENDING)

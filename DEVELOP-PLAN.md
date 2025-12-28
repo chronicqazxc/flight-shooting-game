@@ -39,7 +39,7 @@ The following step‑by‑step plan lays out the work required to build a fully 
 
 ## 7. Testing (DONE - Unit tests; BLOCKED - Instrumentation tests)
 * **Unit tests** for physics calculations, enemy spawning logic, and state transitions. (DONE)
-* **Instrumentation tests** for UI flows (menu navigation, pause, resume). (BLOCKED: Persistent compilation error 'Unresolved reference: assertExists')
+* **Instrumentation tests** for UI flows (menu navigation, pause, resume). (PENDING: compilation issues resolved, but tests need to be implemented/fixed)
 * Verify smooth frame rate (60 fps target) in Android Studio Profiler.
 
 ## 8. Build & Release (DONE)
