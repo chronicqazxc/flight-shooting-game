@@ -1,10 +1,10 @@
 [versions]
 agp = "8.13.2"
-kotlin = "2.3.0"
-compose = "1.6.0"
-lifecycle = "2.8.7" # Updated from feedback
-kotlinxCoroutines = "1.10.1" # Updated from feedback
-turbine = "1.2.0" # Updated from feedback
+kotlin = "1.9.22"
+compose = "1.6.1" # Updated for potential compatibility
+lifecycle = "2.6.2" # Updated for stability
+kotlinxCoroutines = "1.10.1"
+turbine = "1.2.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -12,7 +12,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 [libraries]
-androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.13.1" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.12.0" } # Updated for stability
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version = "2.7.0" }
 
 # Fixes: Unresolved reference 'viewmodel'
