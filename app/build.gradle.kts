@@ -1,3 +1,7 @@
+import java.io.File
+import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,7 +9,16 @@ plugins {
     // Compose support is enabled through android.buildFeatures.compose
 }
 
-import java.util.Properties
+fun loadSigningProperties(projectDir: File): Properties {
+    val properties = Properties()
+    val signingPropertiesFile = File(projectDir, ".secret/signing.properties")
+    if (signingPropertiesFile.exists()) {
+        signingPropertiesFile.inputStream().use { properties.load(it) }
+    } else {
+        println("WARNING: .secret/signing.properties not found. Release build will likely fail.")
+    }
+    return properties
+}
 
 repositories {
     google()
@@ -30,9 +43,7 @@ android {
 
     signingConfigs {
         create("release") {
-            val signingProperties = Properties().apply {
-                file("../.secret/signing.properties").inputStream().use { load(it) }
-            }
+            val signingProperties = loadSigningProperties(rootProject.projectDir)
             storeFile = file(signingProperties.getProperty("storeFile"))
             storePassword = signingProperties.getProperty("storePassword")
             keyAlias = signingProperties.getProperty("keyAlias")
@@ -56,7 +67,7 @@ android {
     }
     kotlin {
         compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
     composeOptions {
@@ -64,7 +75,9 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
+    buildToolsVersion = "36.0.0"
 }
 
     dependencies {
