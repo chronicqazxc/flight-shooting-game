@@ -47,7 +47,7 @@ The following step‑by‑step plan lays out the work required to build a fully 
 * Generate APK/AAB for distribution.
 * Write release notes and build manifest for Play Store (if publishing).
 
-## 9. Documentation & CI
+## 9. Documentation & CI (DONE)
 * Document public API in `README` and inline KDoc.
 * Add **GitHub Actions** for lint, unit tests, and build.
 * Ensure `detekt` analysis passes without critical issues.
