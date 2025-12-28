@@ -19,6 +19,13 @@ jobs:
         java-version: '17'
         cache: 'gradle'
 
+    - name: Set up Android SDK
+      uses: android-setup/gradle-build-action@v1 # Use a recent version of this action
+      with:
+        gradle-version: '8.13' # Match your project's Gradle version
+        android-version: '31' # Match your target API level
+        # Other parameters like build-tools-version, etc., can be added if needed
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
