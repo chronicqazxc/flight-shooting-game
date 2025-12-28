@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest # Changed to macos-latest for HAXM acceleration
 
     steps:
     - uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v2
       with:
-        api-level: 31
+        api-level: 29 # Changed to 29
         build-tools-version: 31.0.0 # Match API level
         # Other parameters like sdk-extra-packages, etc., can be added if needed
 
@@ -49,18 +49,15 @@ jobs:
     - name: Run Unit Tests
       run: ./gradlew testDebugUnitTest
 
-    - name: Start Android Emulator
+    - name: Run Instrumented Tests # Combined emulator start and test run
       uses: ReactiveCircus/android-emulator-runner@v2
       with:
-        api-level: 31
-        target: default
+        api-level: 29 # Changed to 29
+        target: google_apis # Changed to google_apis
         arch: x86_64
         profile: Nexus 6
-        # Disable hardware acceleration if tests are flaky, but try with it first.
-        # disable-animations: true # Can be helpful for Compose tests
-
-    - name: Run Instrumentation Tests
-      run: ./gradlew connectedAndroidTest
+        # disable-animations: true # Keep for potential test flakiness
+        script: ./gradlew connectedCheck # Run instrumented tests here
 
     - name: Build Debug APK
       run: ./gradlew assembleDebug
