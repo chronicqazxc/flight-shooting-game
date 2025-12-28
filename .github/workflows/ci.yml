@@ -52,10 +52,10 @@ jobs:
     - name: Run Instrumented Tests # Combined emulator start and test run
       uses: ReactiveCircus/android-emulator-runner@v2
       with:
-        api-level: 29 # Changed to 29
-        target: google_apis # Changed to google_apis
-        arch: arm64-v8a
-        profile: Nexus 6
+        api-level: 30       # Change from 29 to 30+
+        target: google_apis 
+        arch: arm64-v8a    # Keep as arm64-v8a for M1/M2 runners
+        profile: pixel_6    # Use a more modern profile
         # disable-animations: true # Keep for potential test flakiness
         script: ./gradlew connectedCheck # Run instrumented tests here
 
