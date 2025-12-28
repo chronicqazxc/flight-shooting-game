@@ -1,6 +1,5 @@
 package com.flightgame
 
-import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -16,6 +15,7 @@ import org.junit.Test
 import org.junit.Before
 import org.junit.runner.RunWith
 import androidx.lifecycle.ViewModelProvider
+import org.junit.Assert.assertNotNull
 
 @RunWith(AndroidJUnit4::class)
 class GameScreenTest {
@@ -38,17 +38,17 @@ class GameScreenTest {
             viewModel.stateFlow.value.score == 0
         }
 
-        // Wait until the "Score:" text is displayed
+        // Wait until the "Score:" text is displayed and verify existence and display
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onNodeWithText("Score:", substring = true).isDisplayed()
+            composeTestRule.onNodeWithText("Score:", substring = true).fetchSemanticsNodeOrNull() != null
         }
-        composeTestRule.onNodeWithText("Score:", substring = true).assertExists().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Score:", substring = true).assertIsDisplayed()
 
-        // Wait until the "Fire" button is displayed
+        // Wait until the "Fire" button is displayed and verify existence and display
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onNodeWithText("Fire").isDisplayed()
+            composeTestRule.onNodeWithText("Fire").fetchSemanticsNodeOrNull() != null
         }
-        composeTestRule.onNodeWithText("Fire").assertExists().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Fire").assertIsDisplayed()
     }
 
     @Test
@@ -56,10 +56,10 @@ class GameScreenTest {
         composeTestRule.onRoot().printToLog("fireButtonTest")
         // Wait until the "Fire" button is displayed before clicking
         composeTestRule.waitUntil(timeoutMillis = 5000) {
-            composeTestRule.onNodeWithText("Fire").isDisplayed()
+            composeTestRule.onNodeWithText("Fire").fetchSemanticsNodeOrNull() != null
         }
         composeTestRule.onNodeWithText("Fire").performClick()
-        composeTestRule.onNodeWithText("Fire").assertExists().assertIsDisplayed() // Still displayed after click
+        composeTestRule.onNodeWithText("Fire").assertIsDisplayed() // Still displayed after click
     }
 
     @Test
@@ -73,17 +73,32 @@ class GameScreenTest {
 
         // Verify "Game Over" and "Restart" elements are displayed
         composeTestRule.waitUntil(timeoutMillis = 60000) { // Increased timeout for game over state
-            composeTestRule.onNodeWithText("Game Over", ignoreCase = true).isDisplayed()
+            composeTestRule.onNodeWithText("Game Over", ignoreCase = true).fetchSemanticsNodeOrNull() != null
         }
-        composeTestRule.onNodeWithText("Game Over", ignoreCase = true).assertExists().assertIsDisplayed()
-        composeTestRule.onNodeWithText("Final Score:", substring = true).assertExists().assertIsDisplayed()
-        composeTestRule.onNodeWithText("Restart", ignoreCase = true).assertExists().assertIsDisplayed()
+        composeTestRule.onNodeWithText("Game Over", ignoreCase = true).assertIsDisplayed()
+
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onNodeWithText("Final Score:", substring = true).fetchSemanticsNodeOrNull() != null
+        }
+        composeTestRule.onNodeWithText("Final Score:", substring = true).assertIsDisplayed()
+
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onNodeWithText("Restart", ignoreCase = true).fetchSemanticsNodeOrNull() != null
+        }
+        composeTestRule.onNodeWithText("Restart", ignoreCase = true).assertIsDisplayed()
 
         // Click restart and verify initial state elements reappear
         composeTestRule.onNodeWithText("Restart", ignoreCase = true).performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Score:", substring = true).assertExists().assertIsDisplayed()
-        composeTestRule.onNodeWithText("Fire").assertExists().assertIsDisplayed()
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onNodeWithText("Score:", substring = true).fetchSemanticsNodeOrNull() != null
+        }
+        composeTestRule.onNodeWithText("Score:", substring = true).assertIsDisplayed()
+
+        composeTestRule.waitUntil(timeoutMillis = 5000) {
+            composeTestRule.onNodeWithText("Fire").fetchSemanticsNodeOrNull() != null
+        }
+        composeTestRule.onNodeWithText("Fire").assertIsDisplayed()
     }
 }
