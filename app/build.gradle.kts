@@ -70,9 +70,7 @@ android {
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
-    }
+
     buildFeatures {
         compose = true
         viewBinding = true
