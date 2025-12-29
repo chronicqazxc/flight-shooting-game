@@ -32,7 +32,7 @@ jobs:
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> ./.secret/signing.properties
           echo "keyPassword=${{ secrets.KEY_ALIAS_PASSWORD }}" >> ./.secret/signing.properties
         env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_ALIAS_PASSWORD: ${{ secrets.KEY_ALIAS_PASSWORD }}
           KEYSTORE_FILE_BASE64: ${{ secrets.KEYSTORE_FILE_BASE64 }}
@@ -53,21 +53,21 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: Nexus 5
+          # FIX 1: Use 'cores' instead of the invalid 'avd-conf' to solve the "Unexpected input" warning.
+          cores: 2
+          # FIX 2: Set RAM explicitly via action input for better stability.
+          ram-size: 2048M
+          force-avd-creation: true
           disable-animations: true
-          # FIX: Added -feature -Vulkan to stop the library search loop in your logs.
-          # FIX: Added -no-snapshot to ensure a clean boot.
+          # FIX 3: Cleaned emulator-options. Removed -memory (set above).
+          # Keeping -feature -Vulkan to resolve the graphics search loop in your logs.
           emulator-options: >-
             -no-window
             -gpu swiftshader_indirect
             -noaudio
             -no-boot-anim
             -no-snapshot
-            -memory 2048
             -feature -Vulkan
-          # FIX: Force 2 cores in the config to match Ubuntu runner resources.
-          force-avd-creation: true
-          avd-conf: |
-            hw.cpu.ncore=2
           script: ./gradlew connectedCheck
 
       - name: Build Debug APK
