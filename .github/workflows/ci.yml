@@ -46,31 +46,34 @@ jobs:
           adb kill-server
           adb start-server
 
-      - name: Run Instrumented Tests
-        uses: ReactiveCircus/android-emulator-runner@v2
-        with:
-          api-level: 30
-          target: google_apis
-          arch: x86_64
-          profile: pixel_6
-          disable-animations: true
-          disable-spellchecker: true
-          # FIX: Switched to -gpu host for better stability on Intel macOS.
-          # Removed -feature -Vulkan as it can sometimes conflict with API 30's default behavior.
-          emulator-options: >-
-            -no-window
-            -gpu host
-            -noaudio
-            -no-boot-anim
-            -no-snapshot-load
-            -memory 3072
-            -camera-back none
-            -camera-front none
-          # FIX: Increased timeout to 30 minutes (1800s) to account for macos-15-intel performance.
-          emulator-boot-timeout: 1800
-          script: ./gradlew connectedCheck
-        # FIX: Removed ANDROID_EMULATOR_USE_SYSTEM_LIBS: 1.
-        # On macOS 15, forcing system libs often causes the dylib loading hang you experienced.
-
+          - name: Run Instrumented Tests
+            uses: ReactiveCircus/android-emulator-runner@v2
+            with:
+              api-level: 30
+              target: google_apis
+              arch: x86_64
+              # FIX: Switched from Pixel 6 to Nexus 5.
+              # Lower resolution significantly reduces CPU rendering load on throttled CI runners.
+              profile: nexus_5 
+              disable-animations: true
+              disable-spellchecker: true
+              # FIX: Use '-gpu host' for hardware acceleration on macOS Intel.
+              # Added '-cache-size 1000' and increased memory to 4096MB to prevent swapping.
+              emulator-options: >-
+                -no-window
+                -gpu host
+                -noaudio
+                -no-boot-anim
+                -no-snapshot-load
+                -memory 4096
+                -cache-size 1000
+                -camera-back none
+                -camera-front none
+              # FIX: Increased timeout to 45 minutes (2700s).
+              # macOS 15 Intel runners are currently hitting 100% CPU and booting very slowly.
+              emulator-boot-timeout: 2700
+              script: ./gradlew connectedCheck
+            # CRITICAL: Removed ANDROID_EMULATOR_USE_SYSTEM_LIBS: 1.
+            # This variable causes the 'libEGL.dylib' hang on macOS 15.
       - name: Build Debug APK
         run: ./gradlew assembleDebug
