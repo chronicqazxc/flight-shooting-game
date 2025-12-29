@@ -8,67 +8,61 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15-intel 
+    # FIX: Use ubuntu-latest. It is significantly more stable for emulators in 2025.
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-        cache: 'gradle'
+      - uses: actions/checkout@v4
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      
-    - name: Set up Signing Files
-      run: |
-        mkdir -p .secret
-        echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > ./.secret/my-release-key.jks
-        echo "storeFile=./.secret/my-release-key.jks" > ./.secret/signing.properties
-        echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> ./.secret/signing.properties
-        echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> ./.secret/signing.properties
-        echo "keyPassword=${{ secrets.KEY_ALIAS_PASSWORD }}" >> ./.secret/signing.properties
-      env:
-        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-        KEY_ALIAS_PASSWORD: ${{ secrets.KEY_ALIAS_PASSWORD }}
-        KEYSTORE_FILE_BASE64: ${{ secrets.KEYSTORE_FILE_BASE64 }}
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
 
-    - name: Run Static Analysis and Unit Tests
-      run: ./gradlew lintDebug testDebugUnitTest
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-    # Step 1: Fix ADB (This is a RUN command)
-    - name: Force Start ADB
-      run: |
-        adb kill-server
-        adb start-server
+      - name: Set up Signing Files
+        run: |
+          mkdir -p .secret
+          echo "${{ secrets.KEYSTORE_FILE_BASE64 }}" | base64 --decode > ./.secret/my-release-key.jks
+          echo "storeFile=./.secret/my-release-key.jks" > ./.secret/signing.properties
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> ./.secret/signing.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> ./.secret/signing.properties
+          echo "keyPassword=${{ secrets.KEY_ALIAS_PASSWORD }}" >> ./.secret/signing.properties
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_ALIAS_PASSWORD: ${{ secrets.KEY_ALIAS_PASSWORD }}
+          KEYSTORE_FILE_BASE64: ${{ secrets.KEYSTORE_FILE_BASE64 }}
 
-    # Step 2: Run Emulator (This is a USES command)
-    # Ensure this is NOT indented under the 'run' block above
-    - name: Run Instrumented Tests
-      uses: ReactiveCircus/android-emulator-runner@v2
-      with:
-        api-level: 30
-        target: google_apis
-        arch: x86_64
-        profile: Nexus 5 
-        disable-animations: true
-        disable-spellchecker: true
-        emulator-options: >-
-          -no-window
-          -gpu host
-          -noaudio
-          -no-boot-anim
-          -no-snapshot-load
-          -memory 4096
-          -cache-size 1000
-          -camera-back none
-          -camera-front none
-        emulator-boot-timeout: 2700
-        script: ./gradlew connectedCheck
+      - name: Run Static Analysis and Unit Tests
+        run: ./gradlew lintDebug testDebugUnitTest
 
-    - name: Build Debug APK
-      run: ./gradlew assembleDebug
+      # REQUIRED for Linux: Enable KVM acceleration for the emulator
+      - name: Enable KVM group permissions
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Instrumented Tests
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          disable-animations: true
+          emulator-options: >-
+            -no-window
+            -gpu swiftshader_indirect
+            -noaudio
+            -no-boot-anim
+            -no-snapshot-load
+          script: ./gradlew connectedCheck
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
