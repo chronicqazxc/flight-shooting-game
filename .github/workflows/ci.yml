@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-    # FIX: Use ubuntu-latest. It is significantly more stable for emulators in 2025.
     runs-on: ubuntu-latest
 
     steps:
@@ -41,13 +40,14 @@ jobs:
       - name: Run Static Analysis and Unit Tests
         run: ./gradlew lintDebug testDebugUnitTest
 
-      # REQUIRED for Linux: Enable KVM acceleration for the emulator
+      # Step 1: Enable KVM (Essential for Linux speed)
       - name: Enable KVM group permissions
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # Step 2: Run Emulator (Removed manual ADB start to avoid port conflicts)
       - name: Run Instrumented Tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
@@ -56,12 +56,14 @@ jobs:
           arch: x86_64
           profile: Nexus 5
           disable-animations: true
+          # Force the emulator to use 2 cores (matches the Ubuntu runner capacity)
           emulator-options: >-
             -no-window
             -gpu swiftshader_indirect
             -noaudio
             -no-boot-anim
             -no-snapshot-load
+            -memory 2048
           script: ./gradlew connectedCheck
 
       - name: Build Debug APK
